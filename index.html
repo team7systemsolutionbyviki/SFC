@@ -6,30 +6,43 @@
 <title>SFC WhatsApp Menu</title>
 
 <style>
+/* ===== BASE ===== */
 body{
   font-family:Arial, sans-serif;
   background:#f4f4f4;
   margin:0;
-  padding:15px
+  padding:15px;
 }
 h1{text-align:center;margin:10px 0}
 
-/* ===== FORM ===== */
-.form{margin:15px 0}
+/* ===== FORM CARD ===== */
+.form-card{
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  margin-bottom:20px;
+}
+.card-title{
+  margin:0 0 12px;
+  font-size:16px;
+  font-weight:bold;
+  text-align:center;
+}
 input,textarea{
   width:100%;
   padding:10px;
   margin:6px 0;
   border-radius:6px;
   border:1px solid #ccc;
-  font-size:14px
+  font-size:14px;
 }
 
-/* ===== AGREEMENT (FINAL FIX) ===== */
+/* ===== AGREEMENT ===== */
 .agree-wrap{
   display:flex;
   justify-content:center;
-  margin-top:12px
+  margin-top:12px;
 }
 .agree{
   display:flex;
@@ -37,7 +50,7 @@ input,textarea{
   gap:10px;
   max-width:600px;
   font-size:14px;
-  cursor:pointer
+  cursor:pointer;
 }
 .agree input{width:18px;height:18px}
 .no-return{color:#e53935;font-weight:bold}
@@ -50,28 +63,28 @@ input,textarea{
   border:none;
   border-radius:20px;
   cursor:pointer;
-  background:#e0e0e0
+  background:#e0e0e0;
 }
 .tabs button.active{background:#e53935;color:#fff}
 
-/* ===== MENU ===== */
+/* ===== MENU CARDS ===== */
 .menu{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:15px
+  gap:15px;
 }
 .card{
   background:#fff;
   padding:15px;
   border-radius:10px;
   text-align:center;
-  box-shadow:0 2px 8px rgba(0,0,0,.1)
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 .card img{
   width:100%;
   height:140px;
   object-fit:cover;
-  border-radius:8px
+  border-radius:8px;
 }
 .price{color:#e53935;font-weight:bold;margin:5px 0}
 
@@ -81,7 +94,7 @@ input,textarea{
   justify-content:center;
   align-items:center;
   gap:10px;
-  margin-top:8px
+  margin-top:8px;
 }
 .qty-btn{
   width:32px;
@@ -91,14 +104,14 @@ input,textarea{
   font-size:18px;
   background:#e53935;
   color:#fff;
-  cursor:pointer
+  cursor:pointer;
 }
 .qty-btn:disabled{opacity:.4;cursor:not-allowed}
 .qty{
   width:40px;
   text-align:center;
   border:none;
-  background:#f4f4f4
+  background:#f4f4f4;
 }
 
 /* ===== CART BAR ===== */
@@ -112,7 +125,7 @@ input,textarea{
   justify-content:space-between;
   align-items:center;
   font-size:16px;
-  font-weight:bold
+  font-weight:bold;
 }
 .order-btn{
   padding:12px 18px;
@@ -120,7 +133,7 @@ input,textarea{
   background:#25D366;
   color:#fff;
   border:none;
-  border-radius:8px
+  border-radius:8px;
 }
 .order-btn:disabled{background:#9e9e9e;cursor:not-allowed}
 .clear-btn{
@@ -129,7 +142,7 @@ input,textarea{
   border:none;
   padding:8px 12px;
   border-radius:6px;
-  margin-right:6px
+  margin-right:6px;
 }
 .note{text-align:center;color:#555;margin:10px 0}
 </style>
@@ -139,13 +152,16 @@ input,textarea{
 
 <h1>SFC MENU</h1>
 
-<div class="form">
+<!-- CUSTOMER DETAILS CARD -->
+<div class="form-card" id="agreeSection">
+  <h3 class="card-title">Customer Details</h3>
+
   <input id="custName" placeholder="Customer Name *">
   <input id="custPhone" placeholder="Mobile Number *" type="tel">
   <textarea id="custAddr" placeholder="Delivery Address *"></textarea>
   <textarea id="custNote" placeholder="Order Note (optional)"></textarea>
 
-  <div class="agree-wrap" id="agreeSection">
+  <div class="agree-wrap">
     <label class="agree">
       <input type="checkbox" id="agree" onchange="toggleOrderBtn()">
       <span>
@@ -172,7 +188,7 @@ input,textarea{
 <div class="note">Delivery charge not included</div>
 
 <script>
-/* ===== MENU ===== */
+/* ===== MENU DATA ===== */
 const MENU={
  Burger:[
   {id:"b1",name:"SFC Chicken Fried Burger",price:100,stock:10,image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
@@ -206,7 +222,7 @@ Object.keys(MENU).forEach(cat=>{
   tabsDiv.appendChild(b);
 });
 
-/* Render */
+/* Render menu */
 function renderMenu(){
   menuDiv.innerHTML="";
   [...tabsDiv.children].forEach(b=>b.classList.remove("active"));
