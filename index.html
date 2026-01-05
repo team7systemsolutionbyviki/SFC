@@ -6,80 +6,74 @@
 <title>SFC WhatsApp Menu</title>
 
 <style>
-/* ===== BASE ===== */
 body{
   font-family:Arial, sans-serif;
   background:#f4f4f4;
   margin:0;
-  padding:15px;
+  padding:15px
 }
-h1{
-  text-align:center;
-  margin:10px 0;
-}
+h1{text-align:center;margin:10px 0}
 
 /* ===== FORM ===== */
 .form{margin:15px 0}
-input, textarea{
+input,textarea{
   width:100%;
   padding:10px;
   margin:6px 0;
   border-radius:6px;
   border:1px solid #ccc;
-  font-size:14px;
+  font-size:14px
 }
 
 /* ===== AGREEMENT (FINAL FIX) ===== */
 .agree-wrap{
   display:flex;
   justify-content:center;
-  margin-top:12px;
+  margin-top:12px
 }
-
 .agree{
   display:flex;
   align-items:center;
   gap:10px;
   max-width:600px;
   font-size:14px;
-  cursor:pointer;
+  cursor:pointer
 }
+.agree input{width:18px;height:18px}
+.no-return{color:#e53935;font-weight:bold}
 
-.agree input{
-  width:18px;
-  height:18px;
+/* ===== TABS ===== */
+.tabs{text-align:center;margin-bottom:15px}
+.tabs button{
+  padding:10px 18px;
+  margin:5px;
+  border:none;
+  border-radius:20px;
   cursor:pointer;
+  background:#e0e0e0
 }
-
-.no-return{
-  color:#e53935;
-  font-weight:bold;
-}
+.tabs button.active{background:#e53935;color:#fff}
 
 /* ===== MENU ===== */
 .menu{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:15px;
+  gap:15px
 }
 .card{
   background:#fff;
   padding:15px;
   border-radius:10px;
   text-align:center;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  box-shadow:0 2px 8px rgba(0,0,0,.1)
 }
 .card img{
   width:100%;
   height:140px;
   object-fit:cover;
-  border-radius:8px;
+  border-radius:8px
 }
-.price{
-  color:#e53935;
-  font-weight:bold;
-  margin:5px 0;
-}
+.price{color:#e53935;font-weight:bold;margin:5px 0}
 
 /* ===== QTY ===== */
 .qty-wrap{
@@ -87,7 +81,7 @@ input, textarea{
   justify-content:center;
   align-items:center;
   gap:10px;
-  margin-top:8px;
+  margin-top:8px
 }
 .qty-btn{
   width:32px;
@@ -97,17 +91,14 @@ input, textarea{
   font-size:18px;
   background:#e53935;
   color:#fff;
-  cursor:pointer;
+  cursor:pointer
 }
-.qty-btn:disabled{
-  opacity:.4;
-  cursor:not-allowed;
-}
+.qty-btn:disabled{opacity:.4;cursor:not-allowed}
 .qty{
   width:40px;
   text-align:center;
   border:none;
-  background:#f4f4f4;
+  background:#f4f4f4
 }
 
 /* ===== CART BAR ===== */
@@ -121,7 +112,7 @@ input, textarea{
   justify-content:space-between;
   align-items:center;
   font-size:16px;
-  font-weight:bold;
+  font-weight:bold
 }
 .order-btn{
   padding:12px 18px;
@@ -129,26 +120,18 @@ input, textarea{
   background:#25D366;
   color:#fff;
   border:none;
-  border-radius:8px;
+  border-radius:8px
 }
-.order-btn:disabled{
-  background:#9e9e9e;
-  cursor:not-allowed;
-}
+.order-btn:disabled{background:#9e9e9e;cursor:not-allowed}
 .clear-btn{
   background:#f44336;
   color:#fff;
   border:none;
   padding:8px 12px;
   border-radius:6px;
-  margin-right:6px;
+  margin-right:6px
 }
-
-.note{
-  text-align:center;
-  color:#555;
-  margin:10px 0;
-}
+.note{text-align:center;color:#555;margin:10px 0}
 </style>
 </head>
 
@@ -180,7 +163,9 @@ input, textarea{
   <span>Total: ₹<span id="liveTotal">0</span></span>
   <div>
     <button class="clear-btn" onclick="clearCart()">Clear</button>
-    <button class="order-btn" id="orderBtn" onclick="handleOrderClick()" disabled>Order</button>
+    <button class="order-btn" id="orderBtn" onclick="handleOrderClick()" disabled>
+      Order
+    </button>
   </div>
 </div>
 
@@ -190,83 +175,159 @@ input, textarea{
 /* ===== MENU ===== */
 const MENU={
  Burger:[
-  {id:"b1",name:"SFC Chicken Fried Burger",price:100,stock:10,image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"}
+  {id:"b1",name:"SFC Chicken Fried Burger",price:100,stock:10,image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
+  {id:"b2",name:"Double Ghost Fried Burger",price:180,stock:5,image:"https://images.unsplash.com/photo-1597296173397-751af4da6755"}
+ ],
+ Grill:[
+  {id:"g1",name:"Half Grill Chicken",price:200,stock:8,image:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"},
+  {id:"g2",name:"Full Grill Chicken",price:400,stock:4,image:"https://images.unsplash.com/photo-1712579733874-c3a79f0f9d12"}
+ ],
+ Combo:[
+  {id:"c1",name:"Combo 1",price:350,stock:6,image:"https://images.unsplash.com/photo-1604908554168-36c1a3c9df5b"}
+ ],
+ Others:[
+  {id:"o1",name:"Chicken Soup",price:30,stock:20,image:"https://images.unsplash.com/photo-1604908177522-040d2f2b8e8c"}
  ]
 };
 
+/* ===== SYSTEM ===== */
 const CART=JSON.parse(localStorage.getItem("SFC_CART")||"{}");
 const menuDiv=document.getElementById("menu");
 const tabsDiv=document.getElementById("tabs");
 const totalSpan=document.getElementById("liveTotal");
 const orderBtn=document.getElementById("orderBtn");
-
 let currentTab=Object.keys(MENU)[0];
 
 /* Tabs */
 Object.keys(MENU).forEach(cat=>{
- const b=document.createElement("button");
- b.textContent=cat;
- b.onclick=()=>{currentTab=cat;renderMenu()};
- tabsDiv.appendChild(b);
+  const b=document.createElement("button");
+  b.textContent=cat;
+  b.onclick=()=>{currentTab=cat;renderMenu()};
+  tabsDiv.appendChild(b);
 });
 
 /* Render */
 function renderMenu(){
- menuDiv.innerHTML="";
- MENU[currentTab].forEach(item=>{
-  const qty=CART[item.id]||0;
-  menuDiv.innerHTML+=`
-   <div class="card">
-    <img src="${item.image}">
-    <h3>${item.name}</h3>
-    <div class="price">₹${item.price}</div>
-    <div class="qty-wrap">
-     <button class="qty-btn" onclick="updateQty('${item.id}',-1)">−</button>
-     <input class="qty" value="${qty}" readonly>
-     <button class="qty-btn" onclick="updateQty('${item.id}',1)">+</button>
-    </div>
-   </div>`;
- });
- updateTotal();
-}
+  menuDiv.innerHTML="";
+  [...tabsDiv.children].forEach(b=>b.classList.remove("active"));
+  [...tabsDiv.children].find(b=>b.textContent===currentTab).classList.add("active");
 
-function updateQty(id,d){
- CART[id]=(CART[id]||0)+d;
- if(CART[id]<0) CART[id]=0;
- localStorage.setItem("SFC_CART",JSON.stringify(CART));
- renderMenu();
-}
-
-function updateTotal(){
- let t=0;
- Object.values(CART).forEach((q,i)=>{});
- for(const cat in MENU){
-  MENU[cat].forEach(i=>{
-   t+=(CART[i.id]||0)*i.price;
+  MENU[currentTab].forEach(item=>{
+    const qty=CART[item.id]||0;
+    const disablePlus=qty>=item.stock;
+    menuDiv.innerHTML+=`
+      <div class="card">
+        <img src="${item.image}">
+        <h3>${item.name}</h3>
+        <div class="price">₹${item.price}</div>
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="updateQty('${item.id}',-1)">−</button>
+          <input class="qty" value="${qty}" readonly>
+          <button class="qty-btn" ${disablePlus?"disabled":""}
+            onclick="updateQty('${item.id}',1)">+</button>
+        </div>
+      </div>`;
   });
- }
- totalSpan.textContent=t;
+  updateTotal();
 }
 
-/* ===== AGREEMENT LOGIC ===== */
+/* Qty */
+function updateQty(id,delta){
+  CART[id]=(CART[id]||0)+delta;
+  if(CART[id]<0) CART[id]=0;
+  saveCart();
+  renderMenu();
+}
+
+/* Total */
+function updateTotal(){
+  let total=0;
+  for(const cat in MENU){
+    MENU[cat].forEach(i=>{
+      total+=(CART[i.id]||0)*i.price;
+    });
+  }
+  totalSpan.textContent=total;
+}
+
+/* Storage */
+function saveCart(){
+  localStorage.setItem("SFC_CART",JSON.stringify(CART));
+}
+function clearCart(){
+  if(!confirm("Clear all items?")) return;
+  for(const k in CART) delete CART[k];
+  saveCart();
+  renderMenu();
+}
+
+/* Agreement logic */
 function toggleOrderBtn(){
- orderBtn.disabled=!document.getElementById("agree").checked;
+  orderBtn.disabled=!document.getElementById("agree").checked;
 }
 
-/* ===== AUTO SCROLL WHEN DISABLED ===== */
+/* Auto-scroll if disabled */
 function handleOrderClick(){
- if(orderBtn.disabled){
-  document.getElementById("agreeSection")
-   .scrollIntoView({behavior:"smooth",block:"center"});
-  return;
- }
- sendOrder();
+  if(orderBtn.disabled){
+    document.getElementById("agreeSection")
+      .scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  sendOrder();
 }
 
-/* ===== ORDER ===== */
-function sendOrder(){
- alert("Order sent to WhatsApp (logic unchanged)");
+/* Order ID + time */
+function generateOrderId(){
+  const d=new Date();
+  return `SFC-${d.toISOString().slice(0,10).replace(/-/g,"")}-${Math.floor(1000+Math.random()*9000)}`;
 }
+function getTime(){
+  return new Date().toLocaleString();
+}
+
+/* WhatsApp */
+function sendOrder(){
+  const name=custName.value.trim();
+  const phone=custPhone.value.trim();
+  const addr=custAddr.value.trim();
+  const note=custNote.value.trim();
+  if(!name||!phone||!addr){alert("Fill all required fields");return;}
+
+  const orderId=generateOrderId();
+  const time=getTime();
+
+  let msg=`Order ID: ${orderId}%0ATime: ${time}%0A`;
+  msg+=`Customer: ${name}%0AMobile: ${phone}%0AAddress: ${addr}%0A`;
+  if(note) msg+=`Note: ${note}%0A`;
+  msg+=`%0AOrder:%0A`;
+
+  let total=0,has=false;
+  for(const cat in MENU){
+    MENU[cat].forEach(i=>{
+      const q=CART[i.id]||0;
+      if(q>0){
+        has=true;
+        const amt=q*i.price;
+        total+=amt;
+        msg+=`${i.name} x${q} = ₹${amt}%0A`;
+      }
+    });
+  }
+  if(!has){alert("Cart is empty");return;}
+
+  msg+=`%0A-----------------%0ATotal: ₹${total}%0A`;
+  msg+=`No return / No cancellation agreed`;
+
+  const win=window.open("https://wa.me/918754743213?text="+msg,"_blank");
+  if(win){
+    setTimeout(()=>{
+      for(const k in CART) delete CART[k];
+      saveCart();
+      renderMenu();
+    },1000);
+  }
+}
+
 renderMenu();
 </script>
 
