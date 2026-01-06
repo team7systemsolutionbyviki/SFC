@@ -26,11 +26,36 @@ input,textarea{
 textarea{margin-bottom:4px}
 .card-title{text-align:center;font-weight:bold;margin-bottom:10px}
 
-/* AGREEMENT */
-.agree-wrap{display:flex;justify-content:center;margin-top:6px}
-.agree-row{display:flex;gap:8px;max-width:600px}
-.agree-row input{margin-top:2px}
-.no-return{color:#e53935;font-weight:bold}
+/* ===== AGREEMENT – FINAL FIX ===== */
+.agree-wrap{
+  display:flex;
+  justify-content:center;
+  margin-top:4px;          /* no extra space */
+}
+
+.agree-row{
+  display:flex;
+  align-items:flex-start; /* KEY FIX */
+  gap:8px;
+  max-width:600px;
+}
+
+.agree-row input{
+  width:16px;
+  height:16px;
+  margin-top:2px;         /* aligns checkbox to text */
+  flex-shrink:0;
+}
+
+.agree-text{
+  font-size:14px;
+  line-height:1.3;        /* no vertical gap */
+}
+
+.no-return{
+  color:#e53935;
+  font-weight:bold;
+}
 
 /* TABS */
 .tabs{text-align:center;margin:14px 0}
@@ -200,3 +225,4 @@ render();
 
 </body>
 </html>
+
