@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFC WhatsApp Menu</title>
+<title>SFC Menu</title>
 
 <style>
 body{font-family:Arial;background:#f4f4f4;margin:0;padding:15px}
@@ -18,23 +18,25 @@ h1{text-align:center;margin:10px 0}
 }
 
 /* FORM */
-.form-card{margin-bottom:20px}
+.form-card{margin-bottom:12px}
 input,textarea{
   width:100%;padding:10px;margin:6px 0;
-  border-radius:6px;border:1px solid #ccc
+  border-radius:6px;border:1px solid #ccc;font-size:14px
 }
+textarea{margin-bottom:4px}
 .card-title{text-align:center;font-weight:bold;margin-bottom:10px}
 
 /* AGREEMENT */
-.agree-wrap{display:flex;justify-content:center;margin-top:10px}
-.agree{display:flex;gap:10px;align-items:center;font-size:14px}
+.agree-wrap{display:flex;justify-content:center;margin-top:6px}
+.agree-row{display:flex;gap:8px;max-width:600px}
+.agree-row input{margin-top:2px}
 .no-return{color:#e53935;font-weight:bold}
 
 /* TABS */
-.tabs{text-align:center;margin-bottom:15px}
+.tabs{text-align:center;margin:14px 0}
 .tabs button{
-  padding:5px 10px;margin:5px;border:none;
-  border-radius:20px;background:#ddd;cursor:pointer
+  padding:8px 14px;margin:4px;border:none;
+  border-radius:20px;background:#e0e0e0;cursor:pointer
 }
 .tabs button.active{background:#e53935;color:#fff}
 
@@ -42,85 +44,32 @@ input,textarea{
 .menu{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:10px
+  gap:15px
 }
 .card img{
-  width:100%;
-  height:140px;
-  object-fit:cover;
-  border-radius:8px;
-  margin-bottom:8px;
+  width:100%;height:140px;
+  object-fit:cover;border-radius:8px;margin-bottom:8px
 }
-.price{color:#e53935;font-weight:bold;margin:6px 0}
+.card h3{margin:6px 0 4px;font-size:16px}
+.price{color:#e53935;font-weight:bold;margin:4px 0 8px}
 
 /* QTY */
 .qty-wrap{display:flex;justify-content:center;gap:10px}
 .qty-btn{
-  width:32px;height:32px;border:none;border-radius:50%;
+  width:30px;height:30px;border:none;border-radius:50%;
   background:#e53935;color:#fff;font-size:18px;cursor:pointer
 }
 .qty{width:40px;text-align:center;border:none;background:#f4f4f4}
 
-/* CART BAR */
+/* CART */
 .cart-bar{
   position:sticky;bottom:0;background:#fff;
   padding:10px;border-top:2px solid #ddd;
   display:flex;justify-content:space-between;align-items:center
 }
-.order-btn{
-  background:#25D366;color:#fff;
-  padding:12px 18px;border:none;border-radius:8px
-}
+.order-btn{background:#25D366;color:#fff;padding:10px 16px;border:none;border-radius:8px}
 .order-btn:disabled{background:#999}
-.clear-btn{
-  background:#f44336;color:#fff;
-  padding:8px 12px;border:none;border-radius:6px;margin-right:6px
-}
-.note{text-align:center;color:#555;margin:10px 0}
-
-/* ===== SPACE & ALIGNMENT FIX ===== */
-
-/* Remove extra gap under customer card */
-.form-card {
-  margin-bottom: 12px;
-}
-
-/* Fix agreement checkbox alignment */
-.agree-wrap {
-  justify-content: center;
-  padding-top: 8px;
-}
-.agree {
-  line-height: 1.4;
-}
-
-/* Tabs need breathing space */
-.tabs {
-  margin-top: 14px;
-  margin-bottom: 18px;
-}
-
-/* Card title spacing */
-.card h3 {
-  margin: 6px 0 4px;
-  font-size: 16px;
-}
-
-/* Price spacing */
-.price {
-  margin: 4px 0 8px;
-}
-
-/* Qty buttons spacing */
-.qty-wrap {
-  margin-top: 6px;
-}
-
-/* Remove unexpected gaps */
-.menu {
-  margin-top: 0;
-}
-
+.clear-btn{background:#f44336;color:#fff;padding:8px 12px;border:none;border-radius:6px;margin-right:6px}
 </style>
 </head>
 
@@ -128,21 +77,19 @@ input,textarea{
 
 <h1>SFC MENU</h1>
 
-<!-- CUSTOMER CARD -->
 <div class="form-card" id="agreeSection">
   <div class="card-title">Customer Details</div>
   <input id="custName" placeholder="Customer Name *">
   <input id="custPhone" placeholder="Mobile Number *">
   <textarea id="custAddr" placeholder="Delivery Address *"></textarea>
-  <textarea id="custNote" placeholder="Order Note (optional)"></textarea>
 
   <div class="agree-wrap">
-    <label class="agree">
+    <div class="agree-row">
       <input type="checkbox" id="agree" onchange="toggleOrderBtn()">
-      <span>I agree once order placed there is
+      <div>I agree once order placed there is
         <span class="no-return">NO RETURN / NO CANCELLATION</span>
-      </span>
-    </label>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -150,156 +97,106 @@ input,textarea{
 <div class="menu" id="menu"></div>
 
 <div class="cart-bar">
-  <span>Total ₹<span id="liveTotal">0</span></span>
+  <span>Total ₹<span id="total">0</span></span>
   <div>
     <button class="clear-btn" onclick="clearCart()">Clear</button>
-    <button class="order-btn" id="orderBtn" onclick="handleOrderClick()" disabled>
-      Order
-    </button>
+    <button class="order-btn" id="orderBtn" onclick="placeOrder()" disabled>Order</button>
   </div>
 </div>
 
-<div class="note">Delivery charge not included</div>
-
 <script>
-/* ===== MENU WITH IMAGES ===== */
 const MENU={
- Rice:[
-  {id:"r1",name:"Chicken Fried Rice",price:100,img:"https://images.unsplash.com/photo-1600628422019-45b38f5b3a5e"},
-  {id:"r2",name:"Egg Fried Rice",price:90,img:"https://images.unsplash.com/photo-1589302168068-964664d93dc0"},
-  {id:"r3",name:"Veg Fried Rice",price:80,img:"https://images.unsplash.com/photo-1604909052743-94e838986d24"}
- ],
- Combo:[
-  {id:"c1",name:"Combo 1",price:350,img:"https://images.unsplash.com/photo-1604908554168-36c1a3c9df5b"},
-  {id:"c2",name:"Combo 2",price:200,img:"https://images.unsplash.com/photo-1600628422019-45b38f5b3a5e"},
-  {id:"c3",name:"Combo 3",price:180,img:"https://images.unsplash.com/photo-1551782450-a2132b4ba21d"},
-  {id:"c4",name:"Combo 4",price:260,img:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"}
- ],
- Grill:[
-  {id:"g1",name:"Full Grill Chicken",price:400,img:"https://images.unsplash.com/photo-1712579733874-c3a79f0f9d12"},
-  {id:"g2",name:"Half Grill Chicken",price:200,img:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"},
-  {id:"g3",name:"SFC Special Full Grill",price:450,img:"https://images.unsplash.com/photo-1643886027883-1a23fe41ee2a"},
-  {id:"g4",name:"SFC Special Half Grill",price:230,img:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"},
-  {id:"g5",name:"Home Made Kuboose (1 pcs)",price:20,img:"https://images.unsplash.com/photo-1600628422019-45b38f5b3a5e"}
- ],
- Shawarma:[
-  {id:"s1",name:"Classic Shawarma",price:120,img:"https://images.unsplash.com/photo-1606755962773-d324e0a13086"},
-  {id:"s2",name:"Piri Piri Spicy Shawarma",price:130,img:"https://images.unsplash.com/photo-1625944225562-9fda8a1d9a40"},
-  {id:"s3",name:"Hot Cheese Loaded Shawarma",price:150,img:"https://images.unsplash.com/photo-1625944528535-bfcb6c0e6e5b"}
- ],
- Burger:[
-  {id:"b1",name:"Chicken Fried Burger",price:100,img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
-  {id:"b2",name:"Double Ghost Burger",price:180,img:"https://images.unsplash.com/photo-1597296173397-751af4da6755"},
-  {id:"b3",name:"Cheese & Mayo Lava Burger",price:150,img:"https://images.unsplash.com/photo-1606755962773-d324e0a13086"},
-  {id:"b4",name:"Monster Tunnel Burger",price:250,img:"https://images.unsplash.com/photo-1550547660-d9450f859349"}
- ],
- FriedChicken:[
-  {id:"f1",name:"Kids Bucket (4 pcs)",price:120,img:"https://images.unsplash.com/photo-1625944228741-cb4dca0edc03"},
-  {id:"f2",name:"Adult Bucket (6 pcs)",price:180,img:"https://images.unsplash.com/photo-1625944528535-bfcb6c0e6e5b"},
-  {id:"f3",name:"Foodie Bucket (8 pcs)",price:240,img:"https://images.unsplash.com/photo-1604908177522-040d2f2b8e8c"},
-  {id:"f4",name:"Legendary Bucket (12 pcs)",price:360,img:"https://images.unsplash.com/photo-1604908177522-040d2f2b8e8c"},
-  {id:"f5",name:"Chicken Popcorn 100gm",price:150,img:"https://images.unsplash.com/photo-1617196039897-5e4b3a6cbb18"},
-  {id:"f6",name:"Chicken Strips 100gm",price:150,img:"https://images.unsplash.com/photo-1625944528535-bfcb6c0e6e5b"}
- ],
- Extras:[
-  {id:"e1",name:"Extra Mayonnaise",price:20,img:"https://images.unsplash.com/photo-1589712235271-8b8f9cfd9d3d"}
- ]
+Rice:[
+ {id:"r1",name:"Chicken Fried Rice",price:100,img:"https://images.unsplash.com/photo-1600628422019-45b38f5b3a5e"},
+ {id:"r2",name:"Egg Fried Rice",price:90,img:"https://images.unsplash.com/photo-1589302168068-964664d93dc0"},
+ {id:"r3",name:"Veg Fried Rice",price:80,img:"https://images.unsplash.com/photo-1604909052743-94e838986d24"}
+],
+Combo:[
+ {id:"c1",name:"Combo 1 (Biryani + Half Grill + Sprite)",price:350,img:"https://images.unsplash.com/photo-1604908554168-36c1a3c9df5b"},
+ {id:"c2",name:"Combo 2 (Biryani + Chicken 65 + Sprite)",price:200,img:"https://images.unsplash.com/photo-1600628422019-45b38f5b3a5e"},
+ {id:"c3",name:"Combo 3 (Burger + Lollipop + Sprite)",price:180,img:"https://images.unsplash.com/photo-1551782450-a2132b4ba21d"},
+ {id:"c4",name:"Combo 4 (Half Grill + Mayo + Kuboose)",price:260,img:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"}
+],
+Grill:[
+ {id:"g1",name:"Full Grill Chicken",price:400,img:"https://images.unsplash.com/photo-1712579733874-c3a79f0f9d12"},
+ {id:"g2",name:"Half Grill Chicken",price:200,img:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"},
+ {id:"g3",name:"SFC Special Full Grill",price:450,img:"https://images.unsplash.com/photo-1643886027883-1a23fe41ee2a"},
+ {id:"g4",name:"SFC Special Half Grill",price:230,img:"https://images.unsplash.com/photo-1630315500315-43112e2bfd88"},
+ {id:"g5",name:"Home Made Kuboose (1 pcs)",price:20,img:"https://images.unsplash.com/photo-1600628422019-45b38f5b3a5e"}
+],
+Shawarma:[
+ {id:"s1",name:"SFC Classic Shawarma",price:120,img:"https://images.unsplash.com/photo-1606755962773-d324e0a13086"},
+ {id:"s2",name:"Piri Piri Spicy Shawarma",price:130,img:"https://images.unsplash.com/photo-1625944225562-9fda8a1d9a40"},
+ {id:"s3",name:"Hot Cheese Loaded Shawarma",price:150,img:"https://images.unsplash.com/photo-1625944528535-bfcb6c0e6e5b"}
+],
+Burger:[
+ {id:"b1",name:"SFC Chicken Fried Burger",price:100,img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
+ {id:"b2",name:"Double Ghost Fried Burger",price:180,img:"https://images.unsplash.com/photo-1597296173397-751af4da6755"},
+ {id:"b3",name:"Cheese & Mayo Lava Burger",price:150,img:"https://images.unsplash.com/photo-1606755962773-d324e0a13086"},
+ {id:"b4",name:"SFC Monster Tunnel Burger",price:250,img:"https://images.unsplash.com/photo-1550547660-d9450f859349"}
+],
+FriedChicken:[
+ {id:"f1",name:"Kids Bucket (4 pcs)",price:120,img:"https://images.unsplash.com/photo-1625944228741-cb4dca0edc03"},
+ {id:"f2",name:"Adult Bucket (6 pcs)",price:180,img:"https://images.unsplash.com/photo-1625944528535-bfcb6c0e6e5b"},
+ {id:"f3",name:"Foodie Bucket (8 pcs)",price:240,img:"https://images.unsplash.com/photo-1604908177522-040d2f2b8e8c"},
+ {id:"f4",name:"Legendary Bucket (12 pcs)",price:360,img:"https://images.unsplash.com/photo-1604908177522-040d2f2b8e8c"},
+ {id:"f5",name:"Crispy Chicken Popcorn 100gm",price:150,img:"https://images.unsplash.com/photo-1617196039897-5e4b3a6cbb18"},
+ {id:"f6",name:"Chicken Strips 100gm",price:150,img:"https://images.unsplash.com/photo-1625944528535-bfcb6c0e6e5b"}
+],
+Extras:[
+ {id:"e1",name:"Extra Mayonnaise (Cup)",price:20,img:"https://images.unsplash.com/photo-1589712235271-8b8f9cfd9d3d"}
+]
 };
 
-const CART=JSON.parse(localStorage.getItem("SFC_CART")||"{}");
-const menuDiv=document.getElementById("menu");
-const tabsDiv=document.getElementById("tabs");
-const totalSpan=document.getElementById("liveTotal");
-const orderBtn=document.getElementById("orderBtn");
-let currentTab=Object.keys(MENU)[0];
+const cart={},tabs=document.getElementById("tabs"),menu=document.getElementById("menu"),totalEl=document.getElementById("total");
+let current=Object.keys(MENU)[0];
 
-Object.keys(MENU).forEach(cat=>{
- const b=document.createElement("button");
- b.textContent=cat;
- b.onclick=()=>{currentTab=cat;renderMenu()};
- tabsDiv.appendChild(b);
+Object.keys(MENU).forEach(c=>{
+ let b=document.createElement("button");
+ b.textContent=c;b.onclick=()=>{current=c;render()};
+ tabs.appendChild(b);
 });
 
-function renderMenu(){
- menuDiv.innerHTML="";
- [...tabsDiv.children].forEach(b=>b.classList.remove("active"));
- [...tabsDiv.children].find(b=>b.textContent===currentTab).classList.add("active");
-
- MENU[currentTab].forEach(i=>{
-  const q=CART[i.id]||0;
-  menuDiv.innerHTML+=`
+function render(){
+ menu.innerHTML="";
+ [...tabs.children].forEach(b=>b.classList.remove("active"));
+ [...tabs.children].find(b=>b.textContent===current).classList.add("active");
+ MENU[current].forEach(i=>{
+  let q=cart[i.id]||0;
+  menu.innerHTML+=`
    <div class="card">
-    <img src="${i.img}" alt="${i.name}">
+    <img src="${i.img}" loading="lazy">
     <h3>${i.name}</h3>
     <div class="price">₹${i.price}</div>
     <div class="qty-wrap">
-     <button class="qty-btn" onclick="updateQty('${i.id}',-1)">−</button>
-     <input class="qty" value="${q}" readonly>
-     <button class="qty-btn" onclick="updateQty('${i.id}',1)">+</button>
+      <button class="qty-btn" onclick="add('${i.id}',-1)">−</button>
+      <input class="qty" value="${q}" readonly>
+      <button class="qty-btn" onclick="add('${i.id}',1)">+</button>
     </div>
    </div>`;
  });
- updateTotal();
+ calc();
 }
 
-function updateQty(id,d){
- CART[id]=(CART[id]||0)+d;
- if(CART[id]<0) CART[id]=0;
- localStorage.setItem("SFC_CART",JSON.stringify(CART));
- renderMenu();
-}
-
-function updateTotal(){
+function add(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<0)cart[id]=0;render()}
+function calc(){
  let t=0;
- for(const c in MENU){
-  MENU[c].forEach(i=>t+=(CART[i.id]||0)*i.price);
- }
- totalSpan.textContent=t;
+ for(let c in MENU)MENU[c].forEach(i=>t+=(cart[i.id]||0)*i.price);
+ totalEl.textContent=t;
 }
-
+function clearCart(){for(let k in cart)delete cart[k];render()}
 function toggleOrderBtn(){orderBtn.disabled=!agree.checked}
-
-function handleOrderClick(){
- if(orderBtn.disabled){
-  agreeSection.scrollIntoView({behavior:"smooth"});
-  return;
- }
- sendOrder();
-}
-
-function clearCart(){
- for(const k in CART) delete CART[k];
- localStorage.setItem("SFC_CART","{}");
- renderMenu();
-}
-
-function sendOrder(){
- if(!custName.value||!custPhone.value||!custAddr.value){
-  alert("Fill customer details");return;
- }
+function placeOrder(){
+ if(!custName.value||!custPhone.value||!custAddr.value)return alert("Fill details");
  let msg=`Order ID: SFC-${Date.now()}%0A`;
- msg+=`Name: ${custName.value}%0APhone: ${custPhone.value}%0AAddress: ${custAddr.value}%0A`;
- if(custNote.value) msg+=`Note: ${custNote.value}%0A`;
- msg+="%0AOrder:%0A";
- let total=0;
- for(const c in MENU){
-  MENU[c].forEach(i=>{
-   const q=CART[i.id]||0;
-   if(q){total+=q*i.price;msg+=`${i.name} x${q} = ₹${q*i.price}%0A`}
-  });
- }
- msg+=`%0ATotal ₹${total}`;
+ for(let c in MENU)MENU[c].forEach(i=>{
+  if(cart[i.id])msg+=`${i.name} x${cart[i.id]} = ₹${cart[i.id]*i.price}%0A`;
+ });
  window.open("https://wa.me/918754743213?text="+msg,"_blank");
  clearCart();
 }
-
-renderMenu();
+render();
 </script>
 
 </body>
 </html>
-
-
-
-
-
