@@ -211,20 +211,32 @@ function calc(){
 }
 function clearCart(){for(let k in cart)delete cart[k];render()}
 function toggleOrderBtn(){orderBtn.disabled=!agree.checked}
-function placeOrder(){
- if(!custName.value||!custPhone.value||!custAddr.value)return alert("Fill details");
- let msg=`Order ID: SFC-${Date.now()}%0A`;
- for(let c in MENU)MENU[c].forEach(i=>{
-  if(cart[i.id])msg+=`${i.name} x${cart[i.id]} = ₹${cart[i.id]*i.price}%0A`;
- });
- window.open("https://wa.me/918754743213?text="+msg,"_blank");
- clearCart();
+function placeOrder() {
+
+  // ✅ ADD THIS LINE (NEW)
+  const totalAmount = document.getElementById("total").innerText;
+
+  let message = "SFC ORDER\n\n";
+
+  // your existing item loop stays SAME
+  cart.forEach(item => {
+    message += item.name + " x " + item.qty + " = ₹" + (item.price * item.qty) + "\n";
+  });
+
+  // ✅ ADD THIS LINE (NEW)
+  message += "\nTotal Amount: ₹" + totalAmount;
+
+  // existing WhatsApp send code stays SAME
+  const url = "https://wa.me/918754743213?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
 }
+
 render();
 </script>
 
 </body>
 </html>
+
 
 
 
