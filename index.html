@@ -234,10 +234,16 @@ function placeOrder() {
               "?text=" + encodeURIComponent(message);
 }
 render();
+  function toggleOrderBtn() {
+  document.getElementById("orderBtn").disabled =
+    !document.getElementById("agree").checked;
+}
+
 </script>
 
 </body>
 </html>
+
 
 
 
