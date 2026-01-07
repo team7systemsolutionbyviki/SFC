@@ -212,30 +212,35 @@ function calc(){
 function clearCart(){for(let k in cart)delete cart[k];render()}
 function toggleOrderBtn(){orderBtn.disabled=!agree.checked}
 function placeOrder() {
-
-  // ✅ ADD THIS LINE (NEW)
-  const totalAmount = document.getElementById("total").innerText;
+  if (cart.length === 0) {
+    alert("Cart empty");
+    return;
+  }
 
   let message = "SFC ORDER\n\n";
+  let grandTotal = 0; // 🔑 FIX: calculate again
 
-  // your existing item loop stays SAME
   cart.forEach(item => {
-    message += item.name + " x " + item.qty + " = ₹" + (item.price * item.qty) + "\n";
+    const itemTotal = item.price * item.qty; // 🔑 per-item total
+    grandTotal += itemTotal;
+
+    message += `${item.name} x ${item.qty} = ₹${itemTotal}\n`;
   });
 
-  // ✅ ADD THIS LINE (NEW)
-  message += "\nTotal Amount: ₹" + totalAmount;
+  message += `\nGrand Total: ₹${grandTotal}`; // 🔑 single correct total
 
-  // existing WhatsApp send code stays SAME
-  const url = "https://wa.me/918754743213?text=" + encodeURIComponent(message);
+  const url =
+    "https://wa.me/918754743213?text=" +
+    encodeURIComponent(message);
+
   window.open(url, "_blank");
 }
-
 render();
 </script>
 
 </body>
 </html>
+
 
 
 
