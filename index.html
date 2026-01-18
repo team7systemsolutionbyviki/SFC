@@ -217,22 +217,40 @@ function setType(type,el){
   else{addressBox.style.display='none';addressInput.value=''}
   validate();
 }
-
 function buildMessage(orderId){
-  let total=0;
-  let msg=`🧾 *ORDER NO: ${orderId}*\nType: ${orderType}\nName: ${nameInput.value}\nMobile: ${mobileInput.value}`;
-  if(orderType==='Delivery') msg+=`\nAddress: ${addressInput.value}`;
-  msg+='\n\n';
-  for(let i in cart){
-    if(cart[i].qty>0){
-      let sum=cart[i].qty*cart[i].price;
-      total+=sum;
-      msg+=`- ${i} x ${cart[i].qty} = ₹${sum}\n`;
+  let total = 0;
+
+  let msg = `🧾 *ORDER NO: ${orderId}*
+Type: ${orderType}
+Name: ${nameInput.value}
+Mobile: ${mobileInput.value}`;
+
+  if(orderType === 'Delivery') {
+    msg += `\nAddress: ${addressInput.value}`;
+  }
+
+  msg += `\n\n`;
+
+  for (let i in cart) {
+    if (cart[i].qty > 0) {
+      let sum = cart[i].qty * cart[i].price;
+      total += sum;
+      msg += `- ${i} x ${cart[i].qty} = ₹${sum}\n`;
     }
   }
-  msg+=`\nTotal: ₹${total}`;
+
+  msg += `\nTotal: ₹${total}` Delivery Charges Not Include;
+
+  // ✅ THANK YOU MESSAGE
+  msg += `
+
+🙏 Thank you for your order!
+We appreciate your support.
+Please visit again. 😊`;
+
   return msg;
 }
+
 
 function shareOrder(){
   if(!currentOrderId){
@@ -246,6 +264,7 @@ function shareOrder(){
 </script>
 </body>
 </html>
+
 
 
 
