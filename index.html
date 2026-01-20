@@ -38,7 +38,25 @@ header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:
 </style>
 </head>
 <body>
-<header>🍽 SFC MENU <n> <CENTER><H4>N.M SUNGAM , POLLACHI</H4></CENTER> </n></header>
+<header class="menu-header">
+  🍽 SFC MENU
+  <div class="location">N.M Sungam, Pollachi</div>
+</header>
+
+<style>
+  .menu-header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px;
+  }
+
+  .location {
+    font-size: 14px;
+    font-weight: normal;
+    margin-top: 4px;
+  }
+</style>
 
 <div class="container" id="menu"></div>
 
@@ -247,6 +265,7 @@ function shareOrder(){
 </script>
 </body>
 </html>
+
 
 
 
