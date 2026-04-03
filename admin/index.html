@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFC Food | Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">🍽 Admin Portal</div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">📊 Dashboard</button>
+                <button class="nav-item" data-view="products">🍔 Products</button>
+                <button class="nav-item" data-view="orders">📋 Orders</button>
+                <button class="nav-item" data-view="delivery-settings">🚚 Delivery Fees</button>
+                <button class="nav-item hidden" id="nav-admins" data-view="admins">🛡 Manage Admins</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="admin-logout">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Admin Management View (Super Admin Only) -->
+            <section id="view-admins" class="view hidden">
+                <div class="view-header">
+                    <h2>Admin Management</h2>
+                    <button class="btn-primary" id="open-add-admin">+ Add New Admin</button>
+                </div>
+                <div class="table-wrap">
+                    <table id="admins-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admins-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="view">
+                <div class="view-header">
+                    <h2>Quick Overview</h2>
+                    <select id="dashboard-date-filter" class="filter-select">
+                        <option value="all" selected>All Time</option>
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="7days">Past 7 Days</option>
+                        <option value="30days">Past 30 Days</option>
+                    </select>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value" id="stat-orders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Today's Menu Items</div>
+                        <div class="stat-value" id="stat-products">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value" id="stat-revenue">₹0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Products View -->
+            <section id="view-products" class="view hidden">
+                    <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+                        <div class="search-box">
+                            <input type="text" id="product-search" placeholder="Search dish...">
+                        </div>
+                        <button class="btn-secondary" id="export-csv">📤 Excel Exp</button>
+                        <button class="btn-secondary" id="import-csv-trigger">📥 Excel Imp</button>
+                        <input type="file" id="import-csv" accept=".csv" class="hidden">
+                        <button class="btn-primary" id="open-product-modal">+ Add Food</button>
+                    </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th id="sort-name" style="cursor:pointer">Name ↕️</th>
+                                <th id="sort-category" style="cursor:pointer">Category ↕️</th>
+                                <th id="sort-price" style="cursor:pointer">Price ↕️</th>
+                                <th>Today's Menu</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Orders View -->
+            <section id="view-orders" class="view hidden">
+                <div class="view-header">
+                    <h2>Real-time Orders</h2>
+                    <div class="filter-controls">
+                        <select id="order-date-filter" class="filter-select">
+                            <option value="all" selected>All Time</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="7days">Past 7 Days</option>
+                            <option value="30days">Past 30 Days</option>
+                        </select>
+                        <div class="search-box">
+                            <input type="text" id="order-search" placeholder="Search ID, Name, Phone...">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- Delivery Settings View -->
+            <section id="view-delivery-settings" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Delivery Fees</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Add New Location & Fee</h4>
+                    <form id="delivery-fee-form" style="display: flex; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="loc-name" placeholder="Area Name (e.g., Downtown)" required style="flex: 2;">
+                        <input type="number" id="loc-fee" placeholder="Fee (₹)" required style="flex: 1;">
+                        <button type="submit" class="btn-primary">Save Location</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Delivery Area</th>
+                                <th>Charge (₹)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="delivery-fees-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Add New Food Item</h3>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Food Name</label>
+                        <input type="text" id="p-name" placeholder="e.g. Chicken Burger" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Category</label>
+                        <select id="p-category">
+                            <option value="Veg">Veg</option>
+                            <option value="Non-Veg" selected>Non-Veg</option>
+                            <option value="Drinks">Drinks</option>
+                            <option value="Snacks">Snacks</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="p-price" placeholder="0.00" required>
+                </div>
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea id="p-desc" rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Image</label>
+                    <input type="file" id="p-image" accept="image/*">
+                    <div id="image-preview" class="preview-box"></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary" id="save-product">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Creation Modal -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Register New Store Admin</h3>
+            <form id="admin-creator-form">
+                <div class="input-group">
+                    <label>Admin Name</label>
+                    <input type="text" id="a-name" placeholder="Full Name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="a-email" placeholder="admin@sfc.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="a-pass" placeholder="Min. 6 chars" required minlength="6">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="close-admin-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <div class="dev-label">APP DEVELOPED BY VIGNESH</div>
+        <a href="tel:9360039283" class="dev-contact">📞 CONTACT: 9360039283</a>
+    </footer>
+    <!-- Scripts -->
+    <script type="module" src="../js/theme.js"></script>
+    <script type="module" src="../js/admin.js"></script>
+</body>
+</html>
