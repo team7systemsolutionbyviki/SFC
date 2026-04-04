@@ -29,6 +29,7 @@ const orderDateFilter = document.getElementById('order-date-filter');
 let allProducts = [];
 let allOrders = [];
 let allLocations = [];
+let allCategories = [];
 
 // --- Authentication & Initialization ---
 onAuthStateChanged(auth, async (user) => {
@@ -69,6 +70,13 @@ function initAdminSystem() {
         allProducts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         applyProductSearch();
         updateDashboardData();
+    });
+
+    // 📁 2.5 Categories Listener
+    onSnapshot(collection(db, "categories"), (snap) => {
+        allCategories = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderCategories();
+        updateProductModalCategories();
     });
 
     // --- Order Audio Alerts ---
@@ -500,6 +508,60 @@ window.sendWA = (id) => {
     msg += `_We hope you enjoy your meal. Order again soon!_ 🍣🥙🍕🏮🍱`;
 
     window.open(`https://wa.me/${phoneNum}?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+// --- Categories Management ---
+function renderCategories() {
+    const categoriesBody = document.getElementById('categories-body');
+    if (!categoriesBody) return;
+    categoriesBody.innerHTML = '';
+    
+    allCategories.forEach(cat => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${cat.name}</strong></td>
+            <td>
+                <button class="btn-action btn-delete" onclick="deleteCategory('${cat.id}')">Delete</button>
+            </td>
+        `;
+        categoriesBody.appendChild(tr);
+    });
+}
+
+function updateProductModalCategories() {
+    const pCategorySelect = document.getElementById('p-category');
+    if (!pCategorySelect) return;
+    
+    const currentVal = pCategorySelect.value;
+    pCategorySelect.innerHTML = '';
+    
+    allCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        pCategorySelect.appendChild(opt);
+    });
+    
+    if (currentVal) pCategorySelect.value = currentVal;
+}
+
+const categoryForm = document.getElementById('category-form');
+if (categoryForm) {
+    categoryForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('cat-name').value;
+        if (!name) return;
+        await addDoc(collection(db, "categories"), { name });
+        categoryForm.reset();
+        showToast("Category Added!");
+    };
+}
+
+window.deleteCategory = async (id) => {
+    if (confirm("Delete this category? Items in this category will still exist.")) {
+        await deleteDoc(doc(db, "categories", id));
+        showToast("Category Removed", "error");
+    }
 };
 
 // --- Delivery Fees Management ---
