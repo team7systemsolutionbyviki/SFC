@@ -20,6 +20,7 @@
                 <button class="nav-item hidden" id="nav-admins" data-view="admins">🛡 Manage Admins</button>
             </nav>
             <div class="sidebar-footer">
+                <button class="btn-secondary w-full" id="sound-toggle-btn" onclick="enableAdminSound()" style="margin-bottom: 10px; background: #fff4f4; color: var(--primary);">🔔 Enable Sound</button>
                 <button id="admin-logout">Logout</button>
             </div>
         </aside>
@@ -48,7 +49,6 @@
                 </div>
             </section>
             <!-- Dashboard View -->
-            <section id="view-dashboard" class="view">
                 <div class="view-header">
                     <h2>Quick Overview</h2>
                     <select id="dashboard-date-filter" class="filter-select">
