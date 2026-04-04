@@ -1,6 +1,7 @@
 import { auth, db, storage } from './firebase-config.js';
 import { 
-    collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDoc 
+    collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDoc,
+    query, orderBy, where
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 import { showToast } from './ui-utils.js';
@@ -70,9 +71,36 @@ function initAdminSystem() {
         updateDashboardData();
     });
 
+    // --- Order Audio Alerts ---
+    const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    let lastOrderCount = -1;
+    let soundEnabled = false;
+
+    // Function to enable sound (Browser requirement)
+    window.enableAdminSound = () => {
+        soundEnabled = true;
+        alertSound.play().then(() => {
+            alertSound.pause();
+            alertSound.currentTime = 0;
+            showToast("Audio Alerts Enabled!", "success");
+            document.getElementById('sound-toggle-btn').classList.add('hidden');
+        }).catch(err => console.error("Sound init failed", err));
+    };
+
     // 3. Orders Listener
-    onSnapshot(collection(db, "orders"), (snap) => {
-        allOrders = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const ordersQ = query(collection(db, "orders"));
+    onSnapshot(ordersQ, (snapshot) => {
+        allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Play alert if new order arrives (and it's not the first load)
+        if (lastOrderCount !== -1 && allOrders.length > lastOrderCount) {
+            if (soundEnabled) {
+                alertSound.play().catch(e => console.log("Sound blocked", e));
+            }
+            showToast("🔔 NEW ORDER RECEIVED!", "info");
+        }
+        lastOrderCount = allOrders.length;
+
         applyOrderFilters();
         updateDashboardData();
     });
@@ -398,6 +426,9 @@ function applyOrderFilters() {
         const now = new Date();
         const sod = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         filtered = filtered.filter(o => {
+            // If timestamp is null (new order syncing), show it in 'today'
+            if (!o.timestamp) return dateRange === 'today'; 
+            
             const time = (o.timestamp?.seconds || 0) * 1000;
             if (dateRange === 'today') return time >= sod;
             if (dateRange === 'yesterday') return time >= (sod-86400000) && time < sod;
