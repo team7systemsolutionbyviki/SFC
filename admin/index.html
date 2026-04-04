@@ -16,6 +16,7 @@
                 <button class="nav-item active" data-view="dashboard">📊 Dashboard</button>
                 <button class="nav-item" data-view="products">🍔 Products</button>
                 <button class="nav-item" data-view="orders">📋 Orders</button>
+                <button class="nav-item" data-view="categories">📁 Manage Categories</button>
                 <button class="nav-item" data-view="delivery-settings">🚚 Delivery Fees</button>
                 <button class="nav-item hidden" id="nav-admins" data-view="admins">🛡 Manage Admins</button>
             </nav>
@@ -139,6 +140,33 @@
                     </table>
                 </div>
             </section>
+            <!-- Categories View -->
+            <section id="view-categories" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Menu Categories</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Add New Category</h4>
+                    <form id="category-form" style="display: flex; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="cat-name" placeholder="Name (e.g., Kothu, Biryani, Starters)" required style="flex: 2;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Create Category</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Delivery Settings View -->
             <section id="view-delivery-settings" class="view hidden">
                 <div class="view-header">
