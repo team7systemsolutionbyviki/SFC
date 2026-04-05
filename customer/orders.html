@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFC Food | Order History</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/customer.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-content">
+            <div class="logo">🍽 SFC Food</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="cart.html" class="nav-btn-cart">Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container orders-container">
+        <h2>Your Order History</h2>
+        
+        <div id="order-history-list" class="order-history-list">
+            <!-- Injected by JS -->
+            <div class="no-orders hidden" id="no-orders-msg">
+                <p>You haven't placed any orders yet.</p>
+                <a href="index.html" class="btn-primary">Order Now</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="dev-label">APP DEVELOPED BY VIGNESH</div>
+        <a href="tel:9360039283" class="dev-contact">📞 CONTACT: 9360039283</a>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/orders-history.js"></script>
+</body>
+</html>
