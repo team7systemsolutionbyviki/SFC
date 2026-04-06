@@ -1,0 +1,21 @@
+{
+  "name": "SFC FOOD",
+  "short_name": "SFC Food",
+  "description": "Order Delicious Food from SFC FOOD",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E23744",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192?text=SFC",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512?text=SFC",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
