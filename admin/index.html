@@ -297,6 +297,8 @@
                         <span>to</span>
                         <input type="date" id="report-end" class="filter-select" style="width: 150px; background: #f9f9f9;">
                         <button class="btn-primary" id="btn-generate-report" style="padding: 10px 20px;">Generate</button>
+                        <button class="btn-secondary" id="open-report-pos-btn">🛒 POS Order</button>
+                        <button class="btn-secondary" id="open-report-expense-modal">💸 Add Expense</button>
                         <button class="btn-secondary" id="btn-export-report">📤 Export CSV</button>
                     </div>
                 </div>
@@ -341,6 +343,7 @@
                                 <th>Payment</th>
                                 <th>Details</th>
                                 <th>Amount (₹)</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="report-body">
