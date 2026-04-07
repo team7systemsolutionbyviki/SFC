@@ -8,11 +8,13 @@
 
 .auth-card {
     background: #fff;
-    padding: 2rem;
+    padding: 2.5rem 1.5rem;
     border-radius: var(--radius);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-    width: 400px;
+    width: 100%;
+    max-width: 400px;
     border: 1px solid var(--border);
+    margin: 20px;
 }
 
 .auth-logo {
@@ -92,4 +94,17 @@
     font-size: 0.85rem;
     margin-top: 1rem;
     text-align: center;
+}
+
+@media (max-width: 480px) {
+    .auth-wrapper {
+        padding: 20px;
+        align-items: flex-start;
+        height: auto;
+        min-height: 100vh;
+    }
+    .auth-card {
+        padding: 1.5rem;
+        margin: 0;
+    }
 }
