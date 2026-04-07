@@ -1361,6 +1361,8 @@ async function generatePeriodReport() {
             const itemList = (o.items || []).map(i => `${i.name} [x${i.quantity}]`).join(', ');
             return {
                 date: o.timestamp?.toMillis ? o.timestamp.toMillis() : (o.timestamp?.seconds ? o.timestamp.seconds * 1000 : Date.now()),
+                id: o.id,
+                recordType: 'order',
                 type: 'Order Income',
                 payment: o.paymentMethod || 'Guest',
                 desc: `<strong>${o.customerName || 'Guest'}</strong><br><small style="color:#666">${itemList}</small>`,
@@ -1370,6 +1372,8 @@ async function generatePeriodReport() {
         }),
         ...filteredExpenses.map(ex => ({
             date: new Date(ex.date).getTime(),
+            id: ex.id,
+            recordType: 'expense',
             type: 'Expense Paid',
             payment: '-',
             desc: ex.name,
@@ -1405,10 +1409,52 @@ async function generatePeriodReport() {
             <td><strong>${item.payment}</strong></td>
             <td>${item.desc}</td>
             <td style="font-weight:bold; color:${item.color}">${item.amount >= 0 ? '+' : ''}₹${Math.abs(item.amount)}</td>
+            <td>
+                <button class="btn-action btn-edit" onclick="editReportItem('${item.id}', '${item.recordType}')">Edit</button>
+                <button class="btn-action btn-delete" onclick="deleteReportItem('${item.id}', '${item.recordType}')">Delete</button>
+            </td>
         `;
         reportBody.appendChild(tr);
     });
 }
+
+window.editReportItem = (id, type) => {
+    if (type === 'expense') {
+        const navItem = document.querySelector('[data-view="expenses"]');
+        if (navItem) navItem.click();
+        setTimeout(() => editExpense(id), 100);
+    } else {
+        const navItem = document.querySelector('[data-view="orders"]');
+        if (navItem) navItem.click();
+        showToast("Switching to Orders view to edit order details", "info");
+    }
+};
+
+window.deleteReportItem = async (id, type) => {
+    if (confirm(`Are you sure you want to delete this ${type === 'order' ? 'order record' : 'expense record'}?`)) {
+        try {
+            const collectionName = type === 'order' ? 'orders' : 'expenses';
+            await deleteDoc(doc(db, collectionName, id));
+            showToast(`🗑 ${type.toUpperCase()} removed from system`, "error");
+            generatePeriodReport(); // Refresh
+        } catch (err) {
+            showToast("Failed to delete", "error");
+        }
+    }
+};
+
+document.getElementById('open-report-pos-btn').onclick = () => {
+    const navItem = document.querySelector('[data-view="pos"]');
+    if (navItem) navItem.click();
+};
+
+document.getElementById('open-report-expense-modal').onclick = () => {
+    const navItem = document.querySelector('[data-view="expenses"]');
+    if (navItem) {
+        navItem.click();
+        document.getElementById('exp-name')?.focus();
+    }
+};
 
 function exportReportCSV() {
     const start = document.getElementById('report-start').value;
