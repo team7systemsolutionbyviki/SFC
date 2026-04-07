@@ -55,24 +55,6 @@ tabSignup.addEventListener('click', () => {
 });
 
 // Helper to show cleaner errors
-// 🛡 OBFUSCATION UTILS
-const _D_ = (s) => btoa(s).replace(/=/g, ''); // Simple encoder
-const _E_ = (s, k) => { 
-    let r = ""; 
-    for(let i=0; i<s.length; i++) r += String.fromCharCode(s.charCodeAt(i) ^ k.charCodeAt(i % k.length)); 
-    return btoa(r);
-};
-const _A_ = (e, k) => {
-    let s = atob(e), r = "";
-    for(let i=0; i<s.length; i++) r += String.fromCharCode(s.charCodeAt(i) ^ k.charCodeAt(i % k.length));
-    return r;
-};
-
-// Encoded Admin Keys (Obfuscated)
-const _K_ = "SFC_ADMIN_SECURE_2024";
-const _V_C_ = "BQ8IFnB1fXg="; // VIKI1101
-const _H_C_ = "ZXN3bHN1";     // 654321
-
 function formatAuthError(err) {
     if (err.code === 'auth/email-already-in-use') return "Email is already registered! Try logging in.";
     if (err.code === 'auth/invalid-email') return "Invalid identity or password format.";
@@ -83,25 +65,25 @@ function formatAuthError(err) {
 // 🛡 MULTI-LOGIN LOGIC (Username, Email, Mobile)
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const identity = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-password').value;
+    const identity = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-password').value.trim();
     authError.textContent = '';
     
     showToast("Authenticating...", "info");
 
     // 🔥 Super Admin Bypass (VIKI)
-    if (identity.toUpperCase() === 'VIKI' && pass === _A_(_V_C_, _K_)) {
+    if (identity.toUpperCase() === 'VIKI' && pass === 'VIKI1101') {
         showToast("Welcome Super Admin VIKI!", 'success');
-        localStorage.setItem('admin_session', 'viki_super');
-        setTimeout(() => window.location.href = 'admin/index.html', 1500);
+        localStorage.setItem('admin_session', 'viki_super_admin');
+        setTimeout(() => window.location.href = 'admin/index.html', 1000);
         return;
     }
 
     // 🛡 Store Admin Bypass (HARI)
-    if (identity.trim().toUpperCase() === 'HARI' && pass.trim() === _A_(_H_C_, _K_)) {
+    if (identity.toUpperCase() === 'HARI' && pass === '654321') {
         showToast("Welcome Admin HARI!", 'success');
         localStorage.setItem('admin_session', 'hari_admin');
-        setTimeout(() => window.location.href = 'admin/index.html', 1500);
+        setTimeout(() => window.location.href = 'admin/index.html', 1000);
         return;
     }
 
@@ -110,7 +92,7 @@ loginForm.addEventListener('submit', async (e) => {
 
         // If it's not a standard email, search by User Name or Mobile
         if (!identity.includes('@')) {
-            console.log("Searching for alternative identity...");
+            console.log("Searching alternative identity database...");
             const qName = query(collection(db, "users"), where("name", "==", identity));
             const qMobile = query(collection(db, "users"), where("mobile", "==", identity));
             
@@ -118,10 +100,8 @@ loginForm.addEventListener('submit', async (e) => {
             
             if (!snapName.empty) {
                 finalEmail = snapName.docs[0].data().email;
-                console.log("Found account via Username:", finalEmail);
             } else if (!snapMobile.empty) {
                 finalEmail = snapMobile.docs[0].data().email;
-                console.log("Found account via Mobile:", finalEmail);
             }
         }
 
