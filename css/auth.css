@@ -1,0 +1,146 @@
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fdfdfd;
+    padding: 20px;
+}
+
+.auth-card {
+    background: #fff;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+}
+
+.auth-logo {
+    margin-bottom: 40px;
+}
+
+.logo-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.auth-logo h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #282c3f;
+    margin-bottom: 4px;
+}
+
+.auth-logo p {
+    color: #7e808c;
+    font-size: 0.95rem;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 35px;
+}
+
+.auth-tabs button {
+    background: none;
+    padding: 0 0 10px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #7e808c;
+    position: relative;
+    cursor: pointer;
+}
+
+.auth-tabs button.active {
+    color: #282c3f;
+}
+
+.auth-tabs button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #fc8019;
+}
+
+.input-group {
+    margin-bottom: 24px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    color: #7e808c;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 0;
+    border: none;
+    border-bottom: 1px solid #d4d5d9;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: 0.2s;
+    border-radius: 0;
+}
+
+.input-group input:focus {
+    border-bottom-color: #fc8019;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #bebfc5;
+}
+
+.btn-primary {
+    width: 100%;
+    background: #fc8019;
+    color: #fff;
+    padding: 16px;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 10px;
+    box-shadow: 0 4px 14px rgba(252, 128, 25, 0.4);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.text-link {
+    background: none;
+    color: #5d8ed5;
+    font-weight: 600;
+    padding: 0;
+    margin-top: 15px;
+    font-size: 0.85rem;
+}
+
+.error-text {
+    color: #e23744;
+    font-size: 0.85rem;
+    margin-top: 20px;
+    padding: 10px;
+    background: #fff5f5;
+    text-align: center;
+    border-radius: 4px;
+}
+
+@media (max-width: 480px) {
+    .auth-wrapper {
+        align-items: flex-start;
+        padding-top: 60px;
+    }
+    .auth-card {
+        padding: 30px;
+        box-shadow: none;
+    }
+}
