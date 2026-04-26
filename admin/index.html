@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFC Food | Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">🍽 Admin Portal</div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">📊 Dashboard</button>
+                <button class="nav-item" data-view="pos">🛒 POS Terminal</button>
+                <button class="nav-item" data-view="products">🍔 Products</button>
+                <button class="nav-item" data-view="orders">📋 Orders</button>
+                <button class="nav-item" data-view="customers">👥 Customers</button>
+                <button class="nav-item" data-view="custom-orders">📖 Custom Order Book</button>
+                <button class="nav-item" data-view="inventory">📦 Inventory & Purchases</button>
+                <button class="nav-item" data-view="expenses">💸 Expenses</button>
+                <button class="nav-item" data-view="reports">📊 Full Reports</button>
+                <button class="nav-item" data-view="categories">📁 Food Categories</button>
+                <button class="nav-item" data-view="expense-categories">💰 Expense Categories</button>
+                <button class="nav-item" data-view="delivery-settings">🚚 Delivery Fees</button>
+                <button class="nav-item" data-view="units">📏 Manage Units</button>
+                <button class="nav-item" data-view="shop-settings">🏪 Store Settings</button>
+                <button class="nav-item" data-view="coupons">🎟 Manage Coupons</button>
+                <button class="nav-item hidden" id="nav-admins" data-view="admins">🛡 Manage Admins</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-secondary w-full" id="sound-toggle-btn" onclick="enableAdminSound()"
+                    style="margin-bottom: 10px; background: #fff4f4; color: var(--primary);">🔔 Enable Sound</button>
+                <button id="admin-logout">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Admin Management View (Super Admin Only) -->
+            <section id="view-admins" class="view hidden">
+                <div class="view-header">
+                    <h2>Admin Management</h2>
+                    <button class="btn-primary" id="open-add-admin">+ Add New Admin</button>
+                </div>
+                <div class="table-wrap">
+                    <table id="admins-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admins-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="view">
+                <div class="view-header">
+                    <h2>Quick Overview</h2>
+                    <select id="dashboard-date-filter" class="filter-select">
+                        <option value="all" selected>All Time</option>
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="7days">Past 7 Days</option>
+                        <option value="30days">Past 30 Days</option>
+                    </select>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value" id="stat-orders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Today's Menu Items</div>
+                        <div class="stat-value" id="stat-products">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value" id="stat-revenue">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Expenses</div>
+                        <div class="stat-value" id="stat-expenses" style="color: var(--error);">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Net Profit/Balance</div>
+                        <div class="stat-value" id="stat-profit" style="color: var(--success, #2ecc71);">₹0</div>
+                    </div>
+                    <div class="stat-card" style="grid-column: span 1.5; border: 1px solid var(--border);">
+                        <div class="stat-label">🛒 Operational Status</div>
+                        <div class="stat-value" id="dash-shop-status" style="font-size: 1.2rem;">Checking...</div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Inventory section -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 2rem;">
+                    <div class="auth-card" style="margin: 0; max-width: none; border-top: 4px solid var(--error);">
+                        <h3 style="color: var(--error); margin-bottom: 1rem;">⚠️ Low Stock Alerts</h3>
+                        <div id="dash-low-stock-list" style="max-height: 250px; overflow-y: auto;">
+                            <p style="color: #666; font-style: italic;">Checking stock levels...</p>
+                        </div>
+                    </div>
+
+                    <div class="auth-card" style="margin: 0; max-width: none; border-top: 4px solid var(--primary);">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem;">📦 Fast Inventory Overview</h3>
+                        <div class="table-wrap" style="box-shadow: none; padding: 0;">
+                            <table style="margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 8px;">Item</th>
+                                        <th style="padding: 8px;">Stock</th>
+                                        <th style="padding: 8px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dash-inv-overview">
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; color: #666;">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- POS View -->
+            <section id="view-pos" class="view hidden">
+                <div class="pos-container">
+                    <!-- Left: Product Selection -->
+                    <div class="pos-products-side">
+                        <div class="view-header">
+                            <h2>POS Terminal</h2>
+                            <div class="filter-controls" style="margin-left: auto;">
+                                <div class="search-box">
+                                    <input type="text" id="pos-search" placeholder="Search dish...">
+                                </div>
+                                <select id="pos-cat-filter" class="filter-select">
+                                    <option value="all">All Categories</option>
+                                    <!-- Injected by JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div id="pos-products-grid" class="pos-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Cart & Billing -->
+                    <div class="pos-cart-side">
+                        <div class="auth-card" style="max-width: 100%; margin-bottom: 20px;">
+                            <div class="view-header" style="margin-bottom: 1rem;">
+                                <h3>Current Bill</h3>
+                                <button class="btn-action btn-delete" onclick="clearPOSCart()">Clear</button>
+                            </div>
+
+                            <div id="pos-cart-items"
+                                style="margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                                <!-- Injected by JS -->
+                            </div>
+
+                            <div class="cart-summary"
+                                style="background: var(--light-gray); padding: 15px; border-radius: 12px; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Subtotal</span>
+                                    <span id="pos-subtotal">₹0</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
+                                    <span>Delivery Fee</span>
+                                    <select id="pos-delivery-loc"
+                                        style="width: 150px; padding: 5px 8px; height: 30px; font-size: 0.85rem;">
+                                        <option value="0" data-name="N/A">Self Pickup</option>
+                                        <!-- Injected by JS -->
+                                    </select>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
+                                    <span>Discount (₹)</span>
+                                    <input type="number" id="pos-discount" placeholder="0"
+                                        style="width: 150px; padding: 5px 8px; height: 30px; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;">
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-top: 10px; color: var(--primary);">
+                                    <span>Total</span>
+                                    <span id="pos-total">₹0</span>
+                                </div>
+                            </div>
+
+                            <div class="customer-entry" style="display: grid; gap: 10px; margin-bottom: 1rem;">
+                                <input type="text" id="pos-cust-name" placeholder="Customer Name"
+                                    list="cust-names-list">
+                                <input type="tel" id="pos-cust-phone" placeholder="Phone Number (WhatsApp Bill)"
+                                    list="cust-phones-list">
+                                <datalist id="cust-names-list"></datalist>
+                                <datalist id="cust-phones-list"></datalist>
+                            </div>
+
+                            <div class="pos-payment-selector"
+                                style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+                                <button type="button" class="payment-btn active" data-method="CASH" id="pay-cash-btn">
+                                    <span>💵 CASH</span>
+                                </button>
+                                <button type="button" class="payment-btn" data-method="GPAY" id="pay-gpay-btn">
+                                    <span>📱 GPAY</span>
+                                </button>
+                                <button type="button" class="payment-btn" data-method="CREDIT" id="pay-credit-btn">
+                                    <span>💳 CREDIT</span>
+                                </button>
+                            </div>
+
+                            <button id="btn-complete-pos" class="btn-primary w-full"
+                                style="height: 50px; font-size: 1.1rem;">
+                                ✅ PRINT & WHATSAPP BILL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Products View -->
+            <section id="view-products" class="view hidden">
+                <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="search-box">
+                        <input type="text" id="product-search" placeholder="Search dish...">
+                    </div>
+                    <button class="btn-secondary" id="export-csv">📤 Excel Exp</button>
+                    <button class="btn-secondary" id="import-csv-trigger">📥 Excel Imp</button>
+                    <input type="file" id="import-csv" accept=".csv" class="hidden">
+                    <button class="btn-primary" id="open-product-modal">+ Add Food</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th id="sort-name" style="cursor:pointer">Name ↕️</th>
+                                <th id="sort-category" style="cursor:pointer">Category ↕️</th>
+                                <th id="sort-price" style="cursor:pointer">Price ↕️</th>
+                                <th>Unit</th>
+                                <th>Today's Menu</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Orders View -->
+            <section id="view-orders" class="view hidden">
+                <div class="view-header">
+                    <h2>Real-time Orders</h2>
+                    <div class="filter-controls">
+                        <select id="order-date-filter" class="filter-select">
+                            <option value="all" selected>All Time</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="7days">Past 7 Days</option>
+                            <option value="30days">Past 30 Days</option>
+                        </select>
+                        <div class="search-box">
+                            <input type="text" id="order-search" placeholder="Search ID, Name, Phone...">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-customers" class="view hidden">
+                <div class="view-header">
+                    <h2>Customer Directory</h2>
+                    <div class="search-box">
+                        <input type="text" id="customer-search" placeholder="Search by name or mobile...">
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name & Mobile</th>
+                                <th>Visits</th>
+                                <th style="color: var(--error);">Credit (Owed)</th>
+                                <th style="color: var(--success);">Debit (Paid)</th>
+                                <th>Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Expenses View -->
+            <section id="view-expenses" class="view hidden">
+                <div class="view-header">
+                    <h2>Expense Management</h2>
+                    <div class="filter-controls">
+                        <select id="expense-date-filter" class="filter-select">
+                            <option value="all" selected>All Time</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="7days">Past 7 Days</option>
+                            <option value="30days">Past 30 Days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4 id="expense-form-title">Add New Expense</h4>
+                    <form id="expense-form"
+                        style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto auto; gap: 10px; margin-top: 1rem;">
+                        <input type="hidden" id="exp-id">
+                        <input type="text" id="exp-name" placeholder="Expense Title (e.g., Shop Rent, Chicken, Saving)"
+                            required>
+                        <select id="exp-category" required>
+                            <option value="" disabled selected>Category</option>
+                            <!-- Injected by JS -->
+                        </select>
+                        <input type="number" id="exp-amount" placeholder="Total Debit (₹)" required>
+                        <input type="number" id="exp-paid" placeholder="Amount Paid (₹)" required>
+                        <input type="date" id="exp-date" required>
+                        <button type="submit" id="btn-save-expense" class="btn-primary">Add</button>
+                        <button type="button" id="btn-cancel-expense" class="btn-secondary hidden"
+                            onclick="resetExpenseForm()">Cancel</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Expense Name</th>
+                                <th>Debit (₹)</th>
+                                <th style="color: var(--success);">Credit (₹)</th>
+                                <th style="color: var(--error);">Balance</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenses-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: var(--bg-card); font-weight: bold;">
+                                <td colspan="3" style="text-align: right;">Total:</td>
+                                <td id="footer-total-expenses">₹0</td>
+                                <td id="footer-total-paid" style="color: var(--success);">₹0</td>
+                                <td id="footer-total-balance" style="color: var(--error);">₹0</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+            </section>
+
+            <!-- Inventory View -->
+            <section id="view-inventory" class="view hidden">
+                <div class="view-header">
+                    <h2>📦 Inventory & Purchases</h2>
+                </div>
+
+                <div style="display: flex; gap: 20px; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <!-- Add Stock Item Form -->
+                    <div class="auth-card" style="flex: 1; min-width: 300px; margin: 0;">
+                        <h4>Add New Stock Item</h4>
+                        <form id="inventory-item-form"
+                            style="display: flex; flex-direction: column; gap: 10px; margin-top: 1rem;">
+                            <input type="text" id="inv-item-name" placeholder="Item Name (e.g., Rice, Chicken)"
+                                required>
+                            <select id="inv-item-unit" required>
+                                <option value="" disabled selected>Select Unit</option>
+                                <option value="KG">KG</option>
+                                <option value="Litre">Litre</option>
+                                <option value="PCS">PCS</option>
+                                <option value="Pack">Pack</option>
+                            </select>
+                            <input type="number" id="inv-item-alert" placeholder="Low Stock Alert Qty" required>
+                            <button type="submit" class="btn-primary">Add Item</button>
+                        </form>
+                    </div>
+
+                    <!-- Purchase Entry Form -->
+                    <div class="auth-card" style="flex: 2; min-width: 300px; margin: 0;">
+                        <h4>Record Purchase Entry</h4>
+                        <form id="purchase-entry-form"
+                            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem;">
+                            <input type="date" id="pur-date" required>
+                            <input type="text" id="pur-vendor" placeholder="Vendor / Shop Name" required>
+                            <select id="pur-item" required>
+                                <option value="" disabled selected>Select Item</option>
+                                <!-- JS injected -->
+                            </select>
+                            <input type="number" step="0.01" id="pur-qty" placeholder="Quantity Bought" required>
+                            <input type="number" step="0.01" id="pur-cost" placeholder="Total Cost (₹)" required>
+                            <input type="number" step="0.01" id="pur-paid" placeholder="Amount Paid (₹)" required>
+                            <div style="grid-column: span 2; display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="pur-add-expense" checked>
+                                <label for="pur-add-expense" style="font-size: 0.9rem;">Auto-add to Expenses</label>
+                            </div>
+                            <button type="submit" class="btn-primary" style="grid-column: span 2;">Record
+                                Purchase</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <button class="btn-primary" id="tab-inv-stock" style="flex: 1;"
+                        onclick="switchInvTab('stock')">Current Stock</button>
+                    <button class="btn-secondary" id="tab-inv-history" style="flex: 1;"
+                        onclick="switchInvTab('history')">Purchase History</button>
+                </div>
+
+                <div class="table-wrap" id="wrap-inv-stock">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Unit</th>
+                                <th>Current Stock</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-stock-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-wrap hidden" id="wrap-inv-history">
+                    <div style="display: flex; gap: 10px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap;">
+                        <input type="date" id="filter-pur-start" class="filter-select">
+                        <span>to</span>
+                        <input type="date" id="filter-pur-end" class="filter-select">
+                        <select id="filter-pur-status" class="filter-select">
+                            <option value="all">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid / Partial</option>
+                        </select>
+                        <input type="text" id="filter-pur-item" placeholder="Search Item (e.g. Chicken)"
+                            class="filter-select" style="min-width: 180px;">
+                        <button class="btn-primary" onclick="applyPurchaseFilters()">Search</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Vendor</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Total Cost</th>
+                                <th>Paid</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-history-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports View -->
+            <section id="view-reports" class="view hidden">
+                <div class="view-header">
+                    <h2>Full Financial Reports</h2>
+                    <div class="header-actions"
+                        style="display: flex; gap: 10px; align-items: center; background: white; padding: 10px; border-radius: 12px; box-shadow: var(--shadow-sm);">
+                        <input type="date" id="report-start" class="filter-select"
+                            style="width: 150px; background: #f9f9f9;">
+                        <span>to</span>
+                        <input type="date" id="report-end" class="filter-select"
+                            style="width: 150px; background: #f9f9f9;">
+                        <button class="btn-primary" id="btn-generate-report"
+                            style="padding: 10px 20px;">Generate</button>
+                        <button class="btn-secondary" id="open-report-pos-btn">🛒 POS Order</button>
+                        <button class="btn-secondary" id="open-report-expense-modal">💸 Add Expense</button>
+                        <button class="btn-secondary" id="btn-export-report">📤 Export CSV</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card" style="border-left: 5px solid var(--success);">
+                        <div class="stat-label">Report Period Sales</div>
+                        <div class="stat-value" id="report-sales" style="color: var(--success);">₹0</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 5px solid var(--error);">
+                        <div class="stat-label">Report Period Expenses</div>
+                        <div class="stat-value" id="report-expenses" style="color: var(--error);">₹0</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 5px solid var(--primary);">
+                        <div class="stat-label">Net Gain/Loss</div>
+                        <div class="stat-value" id="report-profit">₹0</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card" style="border-left: 5px solid #2ecc71;">
+                        <div class="stat-label">Total CASH Sales</div>
+                        <div class="stat-value" id="report-cash">₹0</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 5px solid #3498db;">
+                        <div class="stat-label">Total GPAY Sales</div>
+                        <div class="stat-value" id="report-gpay">₹0</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 5px solid #e67e22;">
+                        <div class="stat-label">Total Discounts Given</div>
+                        <div class="stat-value" id="report-discounts">₹0</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 5px solid #888;">
+                        <div class="stat-label">Total Items Sold</div>
+                        <div class="stat-value" id="report-items-count">0</div>
+                    </div>
+                </div>
+
+                <div class="table-wrap" style="max-height: 400px; overflow-y: auto; margin-bottom: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Daily Summary (Sales, Expenses & Inventory
+                        Purchases)</h4>
+                    <table>
+                        <thead style="position: sticky; top: 0; background: white; z-index: 10;">
+                            <tr>
+                                <th>Date</th>
+                                <th style="color: var(--success);">Total Sales (₹)</th>
+                                <th style="color: var(--error);">Total Expenses (₹)</th>
+                                <th>Inv. Purchases (₹)</th>
+                                <th>Net Gain/Loss (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-daily-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-wrap" style="max-height: 500px; overflow-y: auto;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Transaction History (Sales & Expenses)</h4>
+                    <table>
+                        <thead style="position: sticky; top: 0; background: white; z-index: 10;">
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Type</th>
+                                <th>Payment</th>
+                                <th>Details</th>
+                                <th>Amount (₹)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categories View -->
+            <section id="view-categories" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Menu Categories</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Add New Menu Category</h4>
+                    <form id="category-form" style="display: flex; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="cat-name" placeholder="Name (e.g., Kothu, Biryani, Starters)" required
+                            style="flex: 2;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Create Category</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Expense Categories View -->
+            <section id="view-expense-categories" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Expense Categories</h2>
+                    <button class="btn-secondary" id="btn-restore-expense-cats" style="margin-left: auto;">Restore
+                        Defaults</button>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Add New Expense Category</h4>
+                    <form id="exp-category-form" style="display: flex; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="exp-cat-name" placeholder="Name (e.g., Saving, Chicken, Mutton, Rent)"
+                            required style="flex: 2;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Create Category</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-categories-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Units View -->
+            <section id="view-units" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Sales Units</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Add New Unit</h4>
+                    <form id="unit-form" style="display: flex; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="unit-name" placeholder="Name (e.g., PLATE, KG, 1PCS)" required
+                            style="flex: 2;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Create Unit</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Unit Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="units-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Delivery Settings View -->
+            <section id="view-delivery-settings" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Delivery Fees</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Add New Location & Fee</h4>
+                    <form id="delivery-fee-form" style="display: flex; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="loc-name" placeholder="Area Name (e.g., Downtown)" required
+                            style="flex: 2;">
+                        <input type="number" id="loc-fee" placeholder="Fee (₹)" required style="flex: 1;">
+                        <button type="submit" class="btn-primary">Save Location</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Delivery Area</th>
+                                <th>Charge (₹)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="delivery-fees-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Store Settings View -->
+            <section id="view-shop-settings" class="view hidden">
+                <div class="view-header">
+                    <h2>Store Operational Settings</h2>
+                </div>
+                <div class="auth-card" style="max-width: 800px; margin-top: 1rem;">
+                    <h4>Store Operational Schedule</h4>
+                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 1.5rem;">Set specific operational hours
+                        for each day. Check "Is Closed" for any day you are not open.</p>
+
+                    <form id="shop-hours-form">
+                        <div id="schedule-container" style="display: grid; gap: 12px; margin-bottom: 20px;">
+                            <!-- Days will be injected by JS -->
+                        </div>
+
+                        <div
+                            style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 2px;">Current Operational Status:</div>
+                                <div id="shop-status-badge" style="font-size: 1.1rem; font-weight: bold;">--</div>
+                            </div>
+                            <button type="submit" class="btn-primary" style="padding: 12px 30px;">Save Schedule</button>
+                        </div>
+                    </form>
+
+                    <!-- Day Template (Hidden) -->
+                    <template id="day-row-template">
+                        <div class="day-row"
+                            style="display: grid; grid-template-columns: 1.5fr 2fr 2fr 1fr; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong class="day-name">--</strong>
+                            <div class="input-group">
+                                <label style="font-size: 0.75rem;">Opening</label>
+                                <input type="time" class="day-open" required>
+                            </div>
+                            <div class="input-group">
+                                <label style="font-size: 0.75rem;">Closing</label>
+                                <input type="time" class="day-close" required>
+                            </div>
+                            <div class="input-group"
+                                style="display: flex; flex-direction: column; align-items: center;">
+                                <label style="font-size: 0.75rem;">Is Closed</label>
+                                <input type="checkbox" class="day-is-closed"
+                                    style="width: 20px; height: 20px; cursor: pointer;">
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- Coupons View -->
+            <section id="view-coupons" class="view hidden">
+                <div class="view-header">
+                    <h2>Manage Discount Coupons</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>Create New Coupon</h4>
+                    <form id="coupon-form"
+                        style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto; gap: 15px; margin-top: 1rem;">
+                        <input type="text" id="cp-code" placeholder="Code (e.g., WELCOME10)" required
+                            style="text-transform: uppercase;">
+                        <select id="cp-type" required>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="fixed">Fixed (₹)</option>
+                        </select>
+                        <input type="number" id="cp-value" placeholder="Discount Value" required>
+                        <input type="number" id="cp-min-order" placeholder="Min. Order (₹)" required>
+                        <button type="submit" class="btn-primary">Create</button>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Discount</th>
+                                <th>Type</th>
+                                <th>Min. Order</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coupons-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Custom Order Book View -->
+            <section id="view-custom-orders" class="view hidden">
+                <div class="view-header">
+                    <h2>📖 Custom / Pre-Order Book</h2>
+                </div>
+                <div class="auth-card" style="max-width: 100%; margin-bottom: 2rem;">
+                    <h4>New Custom Entry</h4>
+                    <form id="custom-order-form"
+                        style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 15px; margin-top: 1rem;">
+                        <div class="input-group">
+                            <label>Customer Name</label>
+                            <input type="text" id="co-name" placeholder="John Doe" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Event Date</label>
+                            <input type="date" id="co-date" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="co-amount" placeholder="0" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Status</label>
+                            <select id="co-status">
+                                <option value="Booked">Booked</option>
+                                <option value="Advance Paid">Advance Paid</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary"
+                            style="align-self: flex-end; margin-bottom: 5px;">Book</button>
+                    </form>
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Special Instructions / Items List</label>
+                        <textarea id="co-notes" rows="2"
+                            placeholder="e.g. 50 Chicken Meals, delivery at 1PM..."></textarea>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Details</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="custom-orders-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Add New Food Item</h3>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Food Name</label>
+                        <input type="text" id="p-name" placeholder="e.g. Chicken Burger" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Category</label>
+                        <select id="p-category">
+                            <option value="Veg">Veg</option>
+                            <option value="Non-Veg" selected>Non-Veg</option>
+                            <option value="Drinks">Drinks</option>
+                            <option value="Snacks">Snacks</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Price (₹)</label>
+                        <input type="number" id="p-price" placeholder="0.00" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Unit (Qty Type)</label>
+                        <select id="p-unit" required>
+                            <!-- Injected dynamically by JS -->
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea id="p-desc" rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Image</label>
+                    <input type="file" id="p-image" accept="image/*">
+                    <div id="image-preview" class="preview-box"></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary" id="save-product">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Creation Modal -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Register New Store Admin</h3>
+            <form id="admin-creator-form">
+                <div class="input-group">
+                    <label>Admin Name</label>
+                    <input type="text" id="a-name" placeholder="Full Name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="a-email" placeholder="admin@sfc.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="a-pass" placeholder="Min. 6 chars" required minlength="6">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="close-admin-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weight/Quantity Entry Modal -->
+    <div id="qty-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚖️</div>
+            <h3 id="qty-modal-title">Enter Quantity</h3>
+            <p id="qty-modal-product" style="color: #666; margin-bottom: 1.5rem;"></p>
+
+            <div class="input-group" style="margin-bottom: 2rem;">
+                <label id="qty-modal-label" style="text-align: center; display: block;">Quantity</label>
+                <input type="number" id="qty-input" placeholder="100"
+                    style="font-size: 2rem; text-align: center; height: 60px; border: 2px solid var(--primary); border-radius: 12px; margin-top: 10px;">
+            </div>
+
+            <div class="modal-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <button type="button" class="btn-secondary" id="close-qty-modal" style="height: 50px;">Cancel</button>
+                <button type="button" class="btn-primary" id="confirm-qty-btn"
+                    style="height: 50px; font-weight: bold;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Payment Modal -->
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3>Record Payment</h3>
+            <p id="pay-modal-cust" style="font-weight: bold; margin: 15px 0; color: var(--primary);"></p>
+            <form id="payment-form">
+                <input type="hidden" id="pay-cust-key">
+                <div class="input-group">
+                    <label>Amount Paid (₹)</label>
+                    <input type="number" id="pay-amount" placeholder="0" required>
+                </div>
+                <div class="input-group">
+                    <label>Payment Method</label>
+                    <select id="pay-method">
+                        <option value="CASH">CASH</option>
+                        <option value="GPAY">GPAY</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="close-pay-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <div class="dev-label">APP DEVELOPED BY VIGNESH</div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+            <a href="https://team7-system-solution-by-vignesh.carrd.co" target="_blank" class="dev-contact">🌐 VISIT MY
+                WEBSITE</a>
+            <a href="tel:9360039283" class="dev-contact">📞 CONTACT: 9360039283</a>
+        </div>
+    </footer>
+    <!-- Scripts -->
+    <script type="module" src="../js/theme.js"></script>
+    <script type="module" src="../js/admin.js"></script>
+    <a href="https://wa.me/918754743213" class="whatsapp-float" target="_blank" title="Contact us on WhatsApp">
+        <svg viewBox="0 0 32 32">
+            <path
+                d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.733 5.476 2.015 7.788l-2.015 7.212 7.379-1.935c2.316 1.22 4.954 1.935 7.621 1.935 8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 29.333c-2.454 0-4.757-0.655-6.745-1.796l-0.484-0.278-4.385 1.15 1.168-4.185-0.305-0.485c-1.312-2.072-2.072-4.524-2.072-7.14 0-7.389 6.011-13.4 13.4-13.4s13.4 6.011 13.4 13.4-6.011 13.4-13.4 13.4zM22.502 19.333c-0.356-0.178-2.105-1.039-2.431-1.157-0.326-0.118-0.564-0.178-0.801 0.178s-0.919 1.157-1.127 1.395c-0.207 0.237-0.415 0.267-0.771 0.089-0.356-0.178-1.503-0.554-2.862-1.768-1.057-0.943-1.771-2.107-1.978-2.463-0.207-0.356-0.022-0.548 0.156-0.725 0.161-0.159 0.356-0.415 0.534-0.623 0.178-0.207 0.237-0.356 0.356-0.594 0.118-0.237 0.059-0.445-0.030-0.623s-0.801-1.929-1.101-2.646c-0.291-0.697-0.587-0.602-0.801-0.613-0.207-0.011-0.445-0.013-0.683-0.013s-0.623 0.089-0.919 0.415c-0.296 0.326-1.127 1.101-1.127 2.686s1.157 3.116 1.315 3.324c0.158 0.207 2.277 3.477 5.516 4.877 0.771 0.332 1.372 0.531 1.841 0.679 0.774 0.245 1.479 0.211 2.036 0.128 0.621-0.093 2.105-0.861 2.402-1.693 0.297-0.831 0.297-1.544 0.207-1.693 0-0.089-0.326-0.237-0.683-0.414z" />
+        </svg>
+    </a>
+</body>
+
+</html>
